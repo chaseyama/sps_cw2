@@ -27,9 +27,9 @@ MODES = ['feature_sel', 'knn', 'alt', 'knn_3d', 'knn_pca']
 ###
 def plot_pairwise(train_labels, train_set, data_size, num_features, class_colours, colours_size):
     n_features = train_set.shape[1]
-#     fig, ax = plt.subplots(n_features, n_features)
-    fig, ax = plt.subplots(1, n_features)
-#     plt.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01, wspace=0.2, hspace=0.4)
+    fig, ax = plt.subplots(n_features, n_features, figsize=(30, 20))
+    # fig, ax = plt.subplots(1, n_features)
+    plt.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01, wspace=0.5, hspace=0.5)
     color_mat = []
     for i in range (0, data_size):
         if train_labels[i] == 1:
@@ -38,14 +38,15 @@ def plot_pairwise(train_labels, train_set, data_size, num_features, class_colour
             color_mat.append(CLASS_2_C)
         else:
             color_mat.append(CLASS_3_C)
-    for x in range(0,1):
-        for y in range(0,13):
-            ax[x][0].scatter(train_set[:, x], train_set[:, y], c=color_mat, s=1)
-#     for x in range(0,num_features):
-#         for y in range(0,num_features):
-#             ax[x][y].scatter(train_set[:, x], train_set[:, y], c=color_mat, s=1)
-#             ax[x][y].set_title('Features ' + str (x+1) + ' vs '+ str (y+1))
+    # for x in range(0,1):
+    #     for y in range(0,13):
+    #         ax[x][0].scatter(train_set[:, x], train_set[:, y], c=color_mat, s=1)
+    for x in range(0,num_features):
+        for y in range(0,num_features):
+            ax[x][y].scatter(train_set[:, x], train_set[:, y], c=color_mat, s=1)
+            ax[x][y].set_title('Features ' + str (x+1) + ' vs '+ str (y+1))
     plt.show()
+    # plt.savefig('foo.pdf')
 
 def nearest_centroid(train_set, test_set, test_labels, k):
     dist = lambda x, y: np.sqrt(np.sum((x-y)**2))
