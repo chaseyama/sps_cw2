@@ -22,6 +22,9 @@ CLASS_3_C = r'#ffc34d'
 
 MODES = ['feature_sel', 'knn', 'alt', 'knn_3d', 'knn_pca']    
 
+###
+# New Functions
+###
 def plot_pairwise(train_labels, train_set, data_size, num_features, class_colours, colours_size):
     n_features = train_set.shape[1]
 #     fig, ax = plt.subplots(n_features, n_features)
@@ -44,6 +47,28 @@ def plot_pairwise(train_labels, train_set, data_size, num_features, class_colour
 #             ax[x][y].set_title('Features ' + str (x+1) + ' vs '+ str (y+1))
     plt.show()
 
+def nearest_centroid(train_set, test_set, test_labels, k):
+    dist = lambda x, y: np.sqrt(np.sum((x-y)**2))
+    train_dist = lambda x : [dist(x, point) for point in train_set]
+    predicted = [train_dist(p) for p in test_set]
+    predicted = np.argsort(predicted)
+    results = []
+    
+    for i in range(0,53):
+        if k > 1:
+            temp = []
+            for j in range(0,k):
+                temp.append(test_labels[predicted[i][j]].astype(np.int))
+            temp = stats.mode(temp, axis=None)
+            results.append(temp2[0][0])
+        else:
+            results.append(test_labels[predicted[i][0]].astype(np.int))
+    
+    return results
+
+###
+# Skeleton Code
+###
 def feature_selection(train_set, train_labels, **kwargs):
     # write your code here and make sure you return the features at the end of 
     # the function
@@ -51,31 +76,11 @@ def feature_selection(train_set, train_labels, **kwargs):
     plot_pairwise(train_labels, train_set, 125, 13, class_colours,3)
     return [1,2]
 
-
-def nearest_centroid(centroid, test_set, test_labels, k):
-    dist = lambda x, y: np.sqrt(np.sum((x-y)**2))
-    centroid_dist = lambda x : [dist(x, point) for point in centroid]
-    predicted = [centroid_dist(p) for p in test_set]
-    predicted = np.argsort(predicted)
-    test = []
-    
-    for i in range(0,53):
-        if k > 1:
-            temp = []
-            for j in range(0,k):
-                temp.append(test_labels[predicted[i][j]].astype(np.int))
-            temp2 = stats.mode(temp, axis=None)
-            test.append(temp2[0][0])
-        else:
-            test.append(test_labels[predicted[i][0]].astype(np.int))
-    
-    return test
-
 def knn(train_set, train_labels, test_set, k, **kwargs):
     # write your code here and make sure you return the predictions at the end of 
     # the function
-    train_set_selected = np.column_stack((train_set[:,4], train_set[:,7]))
-    test_set_selected = np.column_stack((test_set[:,4], test_set[:,7]))                                      
+    train_set_selected = np.column_stack((train_set[:,0], train_set[:,1]))
+    test_set_selected = np.column_stack((test_set[:,0], test_set[:,1]))                                      
     
     return nearest_centroid(train_set_selected, test_set_selected, train_labels, k)
 
