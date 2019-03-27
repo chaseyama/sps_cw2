@@ -28,7 +28,6 @@ MODES = ['feature_sel', 'knn', 'alt', 'knn_3d', 'knn_pca']
 def plot_pairwise(train_labels, train_set, data_size, num_features, class_colours, colours_size):
     n_features = train_set.shape[1]
     fig, ax = plt.subplots(n_features, n_features, figsize=(30, 20))
-    # fig, ax = plt.subplots(1, n_features)
     plt.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01, wspace=0.5, hspace=0.5)
     color_mat = []
     for i in range (0, data_size):
@@ -38,17 +37,13 @@ def plot_pairwise(train_labels, train_set, data_size, num_features, class_colour
             color_mat.append(CLASS_2_C)
         else:
             color_mat.append(CLASS_3_C)
-    # for x in range(0,1):
-    #     for y in range(0,13):
-    #         ax[x][0].scatter(train_set[:, x], train_set[:, y], c=color_mat, s=1)
     for x in range(0,num_features):
         for y in range(0,num_features):
             ax[x][y].scatter(train_set[:, x], train_set[:, y], c=color_mat, s=1)
             ax[x][y].set_title('Features ' + str (x+1) + ' vs '+ str (y+1))
     plt.show()
-    # plt.savefig('foo.pdf')
 
-def nearest_centroid(train_set, test_set, test_labels, k):
+def nearest_neighbors(train_set, test_set, test_labels, k):
     dist = lambda x, y: np.sqrt(np.sum((x-y)**2))
     train_dist = lambda x : [dist(x, point) for point in train_set]
     predicted = [train_dist(p) for p in test_set]
@@ -61,7 +56,26 @@ def nearest_centroid(train_set, test_set, test_labels, k):
             for j in range(0,k):
                 temp.append(test_labels[predicted[i][j]].astype(np.int))
             temp = stats.mode(temp, axis=None)
-            results.append(temp2[0][0])
+            results.append(temp[0][0])
+        else:
+            results.append(test_labels[predicted[i][0]].astype(np.int))
+    
+    return results
+
+def nearest_neighbors_3d(train_set, test_set, test_labels, k):
+    dist = lambda x, y: np.sqrt(np.sum((x-y)**2))
+    train_dist = lambda x : [dist(x, point) for point in train_set]
+    predicted = [train_dist(p) for p in test_set]
+    predicted = np.argsort(predicted)
+    results = []
+    
+    for i in range(0,53):
+        if k > 1:
+            temp = []
+            for j in range(0,k):
+                temp.append(test_labels[predicted[i][j]].astype(np.int))
+            temp = stats.mode(temp, axis=None)
+            results.append(temp[0][0])
         else:
             results.append(test_labels[predicted[i][0]].astype(np.int))
     
@@ -75,15 +89,15 @@ def feature_selection(train_set, train_labels, **kwargs):
     # the function
     class_colours = [CLASS_1_C,CLASS_2_C,CLASS_3_C]
     plot_pairwise(train_labels, train_set, 125, 13, class_colours,3)
-    return [1,2]
+    return [7,10]
 
 def knn(train_set, train_labels, test_set, k, **kwargs):
     # write your code here and make sure you return the predictions at the end of 
     # the function
-    train_set_selected = np.column_stack((train_set[:,0], train_set[:,1]))
-    test_set_selected = np.column_stack((test_set[:,0], test_set[:,1]))                                      
+    train_set_selected = np.column_stack((train_set[:,6], train_set[:,9]))
+    test_set_selected = np.column_stack((test_set[:,6], test_set[:,9]))                                      
     
-    return nearest_centroid(train_set_selected, test_set_selected, train_labels, k)
+    return nearest_neighbors(train_set_selected, test_set_selected, train_labels, k)
 
 
 def alternative_classifier(train_set, train_labels, test_set, **kwargs):
@@ -95,7 +109,10 @@ def alternative_classifier(train_set, train_labels, test_set, **kwargs):
 def knn_three_features(train_set, train_labels, test_set, k, **kwargs):
     # write your code here and make sure you return the predictions at the end of 
     # the function
-    return []
+    train_set_selected = np.column_stack((train_set[:,6], train_set[:,9], train_set[:,11]))
+    test_set_selected = np.column_stack((test_set[:,6], test_set[:,9], test_set[:,11]))                                      
+    
+    return nearest_neighbors_3d(train_set_selected, test_set_selected, train_labels, k)
 
 
 def knn_pca(train_set, train_labels, test_set, k, n_components=2, **kwargs):
