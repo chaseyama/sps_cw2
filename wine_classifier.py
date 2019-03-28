@@ -14,6 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 from utilities import load_data, print_features, print_predictions
+from sklearn.decomposition import PCA
 
 # you may use these colours to produce the scatter plots
 CLASS_1_C = r'#3366ff'
@@ -62,25 +63,6 @@ def nearest_neighbors(train_set, test_set, test_labels, k):
     
     return results
 
-def nearest_neighbors_3d(train_set, test_set, test_labels, k):
-    dist = lambda x, y: np.sqrt(np.sum((x-y)**2))
-    train_dist = lambda x : [dist(x, point) for point in train_set]
-    predicted = [train_dist(p) for p in test_set]
-    predicted = np.argsort(predicted)
-    results = []
-    
-    for i in range(0,53):
-        if k > 1:
-            temp = []
-            for j in range(0,k):
-                temp.append(test_labels[predicted[i][j]].astype(np.int))
-            temp = stats.mode(temp, axis=None)
-            results.append(temp[0][0])
-        else:
-            results.append(test_labels[predicted[i][0]].astype(np.int))
-    
-    return results
-
 def calculate_confusion_matrix(gt_labels, pred_labels):
     # write your code here (remember to return the confusion matrix at the end!)  
     # Create nxn matrix
@@ -94,6 +76,10 @@ def calculate_confusion_matrix(gt_labels, pred_labels):
 
     for i in range(0, np.unique(gt_labels).size):
          confusion_matrix[i] /= counts[i]
+
+    for i in range (0, 3):
+        for j in range (0, 3):
+            confusion_matrix[i][j] = round(confusion_matrix[i][j], 2)
 
     return confusion_matrix
 
@@ -142,12 +128,44 @@ def knn_three_features(train_set, train_labels, test_set, k, **kwargs):
     train_set_selected = np.column_stack((train_set[:,6], train_set[:,9], train_set[:,11]))
     test_set_selected = np.column_stack((test_set[:,6], test_set[:,9], test_set[:,11]))                                      
     
-    return nearest_neighbors_3d(train_set_selected, test_set_selected, train_labels, k)
+    return nearest_neighbors(train_set_selected, test_set_selected, train_labels, k)
 
 
 def knn_pca(train_set, train_labels, test_set, k, n_components=2, **kwargs):
     # write your code here and make sure you return the predictions at the end of 
     # the function
+    pca = PCA(n_components=n_components)
+    pca.fit(train_set)
+    pca_transformed_training_set = pca.transform(train_set)
+    pca_transformed_test_set = pca.transform(test_set)
+
+    neg_ones = np.full(len(pca_transformed_training_set), -1)
+    pca_transformed_training_set_xs = pca_transformed_training_set[:, 0]
+    pca_transformed_training_set_ys = pca_transformed_training_set[:, 1]
+    neg_pca_transformed_training_set_ys = np.multiply(pca_transformed_training_set_ys, neg_ones)
+
+    color_mat = []
+    for i in range (0, 125):
+        if train_labels[i] == 1:
+            color_mat.append(CLASS_1_C)
+        elif train_labels[i] == 2:
+            color_mat.append(CLASS_2_C)
+        else:
+            color_mat.append(CLASS_3_C)
+
+    train_set_selected = np.column_stack((train_set[:, 6], train_set[:, 9]))
+    test_set_selected = np.column_stack((test_set[:, 6], test_set[:, 9]))
+
+    fig, ax = plt.subplots(nrows=1, ncols=2)
+    ax[0].set_aspect('equal')
+    ax[1].set_aspect('equal')
+    ax[0].scatter(train_set_selected[:, 0], train_set_selected[:, 1], c=color_mat)
+    ax[0].set_title('Reduced selecting features (7, 10)')
+    ax[1].scatter(pca_transformed_training_set_xs, neg_pca_transformed_training_set_ys, c=color_mat)
+    ax[1].set_title("Reduced with Scipy's PCA")
+
+    plt.show()
+
     return []
 
 
