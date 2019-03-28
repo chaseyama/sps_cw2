@@ -195,5 +195,10 @@ if __name__ == '__main__':
         confusion_matrix = calculate_confusion_matrix(test_labels, result_labels)
         print(confusion_matrix)
         plot_matrix(confusion_matrix)
+    elif mode == 'knn_3d_confusion':
+        result_labels = knn_three_features(train_set, train_labels, test_set, args.k)
+        confusion_matrix = calculate_confusion_matrix(test_labels, result_labels)
+        print(confusion_matrix)
+        plot_matrix(confusion_matrix)
     else:
         raise Exception('Unrecognised mode: {}. Possible modes are: {}'.format(mode, MODES))
