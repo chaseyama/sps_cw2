@@ -157,8 +157,6 @@ def knn_pca(train_set, train_labels, test_set, k, n_components=2, **kwargs):
     test_set_selected = np.column_stack((test_set[:, 6], test_set[:, 9]))
 
     fig, ax = plt.subplots(nrows=1, ncols=2)
-    ax[0].set_aspect('equal')
-    ax[1].set_aspect('equal')
     ax[0].scatter(train_set_selected[:, 0], train_set_selected[:, 1], c=color_mat)
     ax[0].set_title('Reduced selecting features (7, 10)')
     ax[1].scatter(pca_transformed_training_set_xs, neg_pca_transformed_training_set_ys, c=color_mat)
@@ -166,7 +164,7 @@ def knn_pca(train_set, train_labels, test_set, k, n_components=2, **kwargs):
 
     plt.show()
 
-    return []
+    return nearest_neighbors(pca_transformed_training_set, pca_transformed_test_set, train_labels, k)
 
 
 def parse_args():
