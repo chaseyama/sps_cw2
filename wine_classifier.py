@@ -81,6 +81,34 @@ def nearest_neighbors_3d(train_set, test_set, test_labels, k):
     
     return results
 
+def calculate_confusion_matrix(gt_labels, pred_labels):
+    # write your code here (remember to return the confusion matrix at the end!)  
+    # Create nxn matrix
+    confusion_matrix = np.zeros((np.unique(gt_labels).size,np.unique(gt_labels).size))
+    
+    counts = np.zeros(np.unique(gt_labels).size)
+    
+    for i in range(0, len(pred_labels)):
+        confusion_matrix[(gt_labels[i] - 1), (pred_labels[i] - 1)] += 1
+        counts[(gt_labels[i] - 1)] += 1
+
+    for i in range(0, np.unique(gt_labels).size):
+         confusion_matrix[i] /= counts[i]
+
+    return confusion_matrix
+
+def plot_matrix(matrix, ax=None):  
+    if ax is None:
+        ax = plt.gca()
+        
+    # write your code here
+    plt.imshow(matrix,cmap=plt.get_cmap('summer'))
+    plt.colorbar()
+    for i in range(0,np.size(matrix,0)):
+        for j in range(0,np.size(matrix,1)):
+            plt.text(i,j,matrix[j,i], va = "center", ha = "center")
+    plt.title('Confusion matrix')
+    plt.show()
 ###
 # Skeleton Code
 ###
@@ -97,7 +125,9 @@ def knn(train_set, train_labels, test_set, k, **kwargs):
     train_set_selected = np.column_stack((train_set[:,6], train_set[:,9]))
     test_set_selected = np.column_stack((test_set[:,6], test_set[:,9]))                                      
     
-    return nearest_neighbors(train_set_selected, test_set_selected, train_labels, k)
+    result_labels = nearest_neighbors(train_set_selected, test_set_selected, train_labels, k)
+    
+    return result_labels
 
 
 def alternative_classifier(train_set, train_labels, test_set, **kwargs):
@@ -159,5 +189,11 @@ if __name__ == '__main__':
     elif mode == 'knn_pca':
         prediction = knn_pca(train_set, train_labels, test_set, args.k)
         print_predictions(prediction)
+    #Added by Cameron
+    elif mode == 'knn_confusion':
+        result_labels = knn(train_set, train_labels, test_set, args.k)
+        confusion_matrix = calculate_confusion_matrix(test_labels, result_labels)
+        print(confusion_matrix)
+        plot_matrix(confusion_matrix)
     else:
         raise Exception('Unrecognised mode: {}. Possible modes are: {}'.format(mode, MODES))
