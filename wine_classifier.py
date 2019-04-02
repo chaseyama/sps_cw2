@@ -44,6 +44,23 @@ def plot_pairwise(train_labels, train_set, data_size, num_features, class_colour
             ax[x][y].set_title('Features ' + str (x+1) + ' vs '+ str (y+1))
     plt.show()
 
+    # THIS SECTION IS JUST TO PLOT OUR TWO SELECTED FEATURES
+    # train_set_selected = np.column_stack((train_set[:, 6], train_set[:, 9]))
+    # fig, ax = plt.subplots()
+    # ax.scatter(train_set_selected[:, 0], train_set_selected[:, 1], c=color_mat)
+    # ax.set_title('Features 7 vs 10')
+    # plt.show()
+
+    # THIS SECTION IS JUST TO PLOT OUR THIRD FEATURE AGAINST OUR ALREADY SELECTED FEATURES
+    # train_set_selected_one = np.column_stack((train_set[:, 6], train_set[:, 11]))
+    # train_set_selected_two = np.column_stack((train_set[:, 9], train_set[:, 11]))
+    # fig, ax = plt.subplots(nrows=1, ncols=2)
+    # ax[0].scatter(train_set_selected_one[:, 0], train_set_selected_one[:, 1], c=color_mat)
+    # ax[0].set_title('Features 7 vs 12')
+    # ax[1].scatter(train_set_selected_two[:, 0], train_set_selected_two[:, 1], c=color_mat)
+    # ax[1].set_title('Features 10 vs 12')
+    # plt.show()
+
 def nearest_neighbors(train_set, test_set, test_labels, k):
     dist = lambda x, y: np.sqrt(np.sum((x-y)**2))
     train_dist = lambda x : [dist(x, point) for point in train_set]
@@ -103,7 +120,7 @@ def feature_selection(train_set, train_labels, **kwargs):
     # the function
     class_colours = [CLASS_1_C,CLASS_2_C,CLASS_3_C]
     plot_pairwise(train_labels, train_set, 125, 13, class_colours,3)
-    return [7,10]
+    return [6, 9]
 
 def knn(train_set, train_labels, test_set, k, **kwargs):
     # write your code here and make sure you return the predictions at the end of 
