@@ -13,6 +13,7 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stats
+import math
 from utilities import load_data, print_features, print_predictions
 from sklearn.decomposition import PCA
 
@@ -136,6 +137,48 @@ def knn(train_set, train_labels, test_set, k, **kwargs):
 def alternative_classifier(train_set, train_labels, test_set, **kwargs):
     # write your code here and make sure you return the predictions at the end of 
     # the function
+    train_set_selected = np.column_stack((train_set[:,6], train_set[:,9]))
+    test_set_selected = np.column_stack((test_set[:,6], test_set[:,9]))  
+    
+    #Naive Bayes Analysis
+    #1) Summarize Training Dataset
+        #1.1) Seperate Data by Class
+    class_1 = []
+    class_2 = []
+    class_3 = []
+    for i in range(len(train_labels)):
+        if train_labels[i] == 1:
+            class_1.append(train_set_selected[i])
+        elif train_labels[i] == 2:
+            class_2.append(train_set_selected[i])
+        else:
+            class_3.append(train_set_selected[i])
+            
+        #1.2 Calculate Mean and St. Dev
+    mean_1_1 = np.mean(class_1[0])
+    mean_2_1 = np.mean(class_2[0])
+    mean_3_1 = np.mean(class_3[0])
+    stdev_1_1 = np.std(class_1[0])
+    stdev_2_1 = np.std(class_2[0])
+    stdev_3_1 = np.std(class_3[0])
+    
+    mean_1_2 = np.mean(class_1[1])
+    mean_2_2 = np.mean(class_2[1])
+    mean_3_2 = np.mean(class_3[1])
+    stdev_1_2 = np.std(class_1[1])
+    stdev_2_2 = np.std(class_2[1])
+    stdev_3_2 = np.std(class_3[1])
+    
+    #2) Make Prediction
+    #2.1) Calculate Gaussian Probability Density Function
+#     probability = []
+#     for i in range(len(test_set)):
+#         exponent = math.exp(-(math.pow(test_set[i][0],2)/(2*math.pow(stdev_1_1,2)))
+#         probability[0,i] = 
+#     def calculateProbability(x, mean, stdev):
+# 	exponent = math.exp(-(math.pow(x-mean,2)/(2*math.pow(stdev,2))))
+# 	return (1 / (math.sqrt(2*math.pi) * stdev)) * exponent
+    
     return []
 
 
