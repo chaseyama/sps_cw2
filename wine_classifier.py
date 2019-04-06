@@ -62,7 +62,7 @@ def plot_pairwise(train_labels, train_set, data_size, num_features, class_colour
     # ax[1].set_title('Features 10 vs 12')
     # plt.show()
 
-def nearest_neighbors(train_set, test_set, test_labels, k):
+def nearest_neighbors(train_set, test_set, train_labels, k):
     dist = lambda x, y: np.sqrt(np.sum((x-y)**2))
     train_dist = lambda x : [dist(x, point) for point in train_set]
     predicted = [train_dist(p) for p in test_set]
@@ -73,12 +73,11 @@ def nearest_neighbors(train_set, test_set, test_labels, k):
         if k > 1:
             temp = []
             for j in range(0,k):
-                temp.append(test_labels[predicted[i][j]].astype(np.int))
+                temp.append(train_labels[predicted[i][j]].astype(np.int))
             temp = stats.mode(temp, axis=None)
             results.append(temp[0][0])
         else:
-            results.append(test_labels[predicted[i][0]].astype(np.int))
-    
+            results.append(train_labels[predicted[i][0]].astype(np.int))
     return results
 
 def calculate_confusion_matrix(gt_labels, pred_labels):
@@ -113,6 +112,15 @@ def plot_matrix(matrix, ax=None):
             plt.text(i,j,matrix[j,i], va = "center", ha = "center")
     plt.title('Confusion matrix')
     plt.show()
+    
+def calculate_accuracy(gt_labels, pred_labels):
+    # write your code here (remember to return the accuracy at the end!)
+    count = 0
+    for i in range(0,len(gt_labels)):
+        if gt_labels[i] == pred_labels[i]:
+            count += 1
+    return (count/len(gt_labels))
+
 ###
 # Skeleton Code
 ###
@@ -121,7 +129,7 @@ def feature_selection(train_set, train_labels, **kwargs):
     # the function
     class_colours = [CLASS_1_C,CLASS_2_C,CLASS_3_C]
     plot_pairwise(train_labels, train_set, 125, 13, class_colours,3)
-    return [6, 9]
+    return [7, 10]
 
 def knn(train_set, train_labels, test_set, k, **kwargs):
     # write your code here and make sure you return the predictions at the end of 
@@ -142,44 +150,42 @@ def alternative_classifier(train_set, train_labels, test_set, **kwargs):
     
     #Naive Bayes Analysis
     #1) Summarize Training Dataset
-        #1.1) Seperate Data by Class
-    class_1 = []
-    class_2 = []
-    class_3 = []
+    #1.1) Seperate Data by Class
+    classes = [[],[],[]]
     for i in range(len(train_labels)):
         if train_labels[i] == 1:
-            class_1.append(train_set_selected[i])
+            classes[0].append(train_set_selected[i])
         elif train_labels[i] == 2:
-            class_2.append(train_set_selected[i])
+            classes[1].append(train_set_selected[i])
         else:
-            class_3.append(train_set_selected[i])
+            classes[2].append(train_set_selected[i])
             
-        #1.2 Calculate Mean and St. Dev
-    mean_1_1 = np.mean(class_1[0])
-    mean_2_1 = np.mean(class_2[0])
-    mean_3_1 = np.mean(class_3[0])
-    stdev_1_1 = np.std(class_1[0])
-    stdev_2_1 = np.std(class_2[0])
-    stdev_3_1 = np.std(class_3[0])
-    
-    mean_1_2 = np.mean(class_1[1])
-    mean_2_2 = np.mean(class_2[1])
-    mean_3_2 = np.mean(class_3[1])
-    stdev_1_2 = np.std(class_1[1])
-    stdev_2_2 = np.std(class_2[1])
-    stdev_3_2 = np.std(class_3[1])
-    
-    #2) Make Prediction
-    #2.1) Calculate Gaussian Probability Density Function
-#     probability = []
-#     for i in range(len(test_set)):
-#         exponent = math.exp(-(math.pow(test_set[i][0],2)/(2*math.pow(stdev_1_1,2)))
-#         probability[0,i] = 
-#     def calculateProbability(x, mean, stdev):
-# 	exponent = math.exp(-(math.pow(x-mean,2)/(2*math.pow(stdev,2))))
-# 	return (1 / (math.sqrt(2*math.pi) * stdev)) * exponent
-    
-    return []
+    #1.2 Calculate Mean and St. Dev
+    feature_means = []
+    feature_std = []
+    for i in range(0,3):
+        feature_means.append(np.mean(classes[i],axis=0))
+        feature_std.append(np.std(classes[i],axis=0))
+   
+    #2) Calculate Gaussian Probability Density Function
+    results = []
+
+    for i in range(0, len(test_set_selected)):
+        temp = []
+        for j in range(0,3):
+            e_1 = np.exp(-1*np.power((test_set_selected[i][0]-feature_means[j][0]),2)/(2*np.power(feature_std[j][0],2)))
+            prob_1 = e_1/(np.sqrt(2*np.pi)*feature_std[j][0])
+            e_2 = np.exp(-1*np.power((test_set_selected[i][1]-feature_means[j][1]),2)/(2*np.power(feature_std[j][1],2)))
+            prob_2 = e_2/(np.sqrt(2*np.pi)*feature_std[j][1])
+            temp.append([prob_1*prob_2])
+
+        if temp[0] > temp[1] and temp[0] > temp[2]:
+            results.append(1)
+        elif temp[1] > temp[0] and temp[1] > temp[2]:
+            results.append(2)
+        else:
+            results.append(3)
+    return results
 
 
 def knn_three_features(train_set, train_labels, test_set, k, **kwargs):
@@ -268,13 +274,20 @@ if __name__ == '__main__':
     #Added by Cameron
     elif mode == 'knn_confusion':
         result_labels = knn(train_set, train_labels, test_set, args.k)
+        print(calculate_accuracy(test_labels,result_labels))
         confusion_matrix = calculate_confusion_matrix(test_labels, result_labels)
         print(confusion_matrix)
-        plot_matrix(confusion_matrix)
+#         plot_matrix(confusion_matrix)
     elif mode == 'knn_3d_confusion':
         result_labels = knn_three_features(train_set, train_labels, test_set, args.k)
+        print(calculate_accuracy(test_labels,result_labels))
         confusion_matrix = calculate_confusion_matrix(test_labels, result_labels)
         print(confusion_matrix)
-        plot_matrix(confusion_matrix)
+#         plot_matrix(confusion_matrix)
+    elif mode == 'alt_confusion':
+        result_labels = alternative_classifier(train_set, train_labels, test_set)
+        print(calculate_accuracy(test_labels,result_labels))
+        confusion_matrix = calculate_confusion_matrix(test_labels, result_labels)
+        print(confusion_matrix)
     else:
         raise Exception('Unrecognised mode: {}. Possible modes are: {}'.format(mode, MODES))
