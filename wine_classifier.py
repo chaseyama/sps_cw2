@@ -228,7 +228,7 @@ def knn_pca(train_set, train_labels, test_set, k, n_components=2, **kwargs):
     ax[1].scatter(pca_transformed_training_set_xs, neg_pca_transformed_training_set_ys, c=color_mat)
     ax[1].set_title("Reduced with Scipy's PCA")
 
-    plt.show()
+    #plt.show()
 
     return nearest_neighbors(pca_transformed_training_set, pca_transformed_test_set, train_labels, k)
 
@@ -286,6 +286,11 @@ if __name__ == '__main__':
 #         plot_matrix(confusion_matrix)
     elif mode == 'alt_confusion':
         result_labels = alternative_classifier(train_set, train_labels, test_set)
+        print(calculate_accuracy(test_labels,result_labels))
+        confusion_matrix = calculate_confusion_matrix(test_labels, result_labels)
+        print(confusion_matrix)
+    elif mode == 'knn_pca_confusion':
+        result_labels = knn_pca(train_set, train_labels, test_set, args.k)
         print(calculate_accuracy(test_labels,result_labels))
         confusion_matrix = calculate_confusion_matrix(test_labels, result_labels)
         print(confusion_matrix)
